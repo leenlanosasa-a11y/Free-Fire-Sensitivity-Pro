@@ -1,0 +1,35 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'Free_Fire_Sensitivity_Pro_Arabic_Source.zip'
+      - '.github/workflows/build-apk.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get source
+        uses: actions/checkout@v4
+      - name: Extract Flutter project
+        run: unzip -o Free_Fire_Sensitivity_Pro_Arabic_Source.zip -d .
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Install packages
+        working-directory: Free_Fire_Sensitivity_Pro
+        run: flutter pub get
+      - name: Create Android platform files
+        working-directory: Free_Fire_Sensitivity_Pro
+        run: flutter create --platforms=android --org com.freesenspro .
+      - name: Build release APK
+        working-directory: Free_Fire_Sensitivity_Pro
+        run: flutter build apk --release
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Free-Fire-Sensitivity-Pro-APK
+          path: Free_Fire_Sensitivity_Pro/build/app/outputs/flutter-apk/app-release.apk
